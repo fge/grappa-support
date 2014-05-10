@@ -46,21 +46,17 @@ dependencies {
     compile(group: "org.bitbucket.mstrobel", name: "procyon-compilertools",
         version: "0.5.25");
     compile(group: "com.google.caliper", name: "caliper",
-        version: "1.0-beta-1") {
+        version: "1.0-beta-SNAPSHOT") {
         exclude(group: "com.google.guava", module: "guava");
-//        exclude(group: "org.ow2.asm", module: "asm");
-//        exclude(group: "org.ow2.asm", module: "asm-analysis");
-//        exclude(group: "org.ow2.asm", module: "asm-commons");
-//        exclude(group: "org.ow2.asm", module: "asm-tree");
-//        exclude(group: "org.ow2.asm", module: "asm-util");
-//        exclude(group: "org.ow2.asm", module: "asm-xml");
-//        exclude(group: "asm", module: "asm");
+        exclude(group: "org.ow2.asm", module: "asm");
+        exclude(group: "org.ow2.asm", module: "asm-analysis");
+        exclude(group: "org.ow2.asm", module: "asm-commons");
+        exclude(group: "org.ow2.asm", module: "asm-tree");
+        exclude(group: "org.ow2.asm", module: "asm-util");
+        exclude(group: "org.ow2.asm", module: "asm-xml");
+        exclude(group: "asm", module: "asm");
     };
-    compile(group: "org.openjdk.jmh", name: "jmh-core", version: "0.7.1");
-    compile(group: "org.openjdk.jmh", name: "jmh-generator-reflection",
-        version: "0.7.1");
-    compile(group: "org.openjdk.jmh", name: "jmh-generator-annprocess",
-        version: "0.7.1");
+    compile(group: "com.sun.jersey", name: "jersey-core", version: "1.18.1");
 }
 
 javadoc.options.links("http://docs.oracle.com/javase/6/docs/api/");
