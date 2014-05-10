@@ -39,13 +39,23 @@ repositories {
 dependencies {
     provided(group: "com.google.code.findbugs", name: "jsr305",
         version: "2.0.1");
+    compile(group: "com.github.parboiled1", name: "grappa",
+        version: "1.0.0-beta.5-SNAPSHOT");
     compile(group: "org.bitbucket.mstrobel", name: "procyon-core",
         version: "0.5.25");
     compile(group: "org.bitbucket.mstrobel", name: "procyon-compilertools",
         version: "0.5.25");
     compile(group: "com.google.caliper", name: "caliper",
-        version: "1.0-beta.1");
-    compile(group: "org.openjdk.jmh", name: "jmh-parent", version: "0.6");
+        version: "1.0-beta-1") {
+        exclude(group: "com.google.guava", module: "guava");
+        exclude(group: "org.ow2.asm", module: "asm");
+        exclude(group: "org.ow2.asm", module: "asm-analysis");
+        exclude(group: "org.ow2.asm", module: "asm-commons");
+        exclude(group: "org.ow2.asm", module: "asm-tree");
+        exclude(group: "org.ow2.asm", module: "asm-util");
+        exclude(group: "org.ow2.asm", module: "asm-xml");
+    };
+    compile(group: "org.openjdk.jmh", name: "jmh-core", version: "0.6");
 }
 
 javadoc.options.links("http://docs.oracle.com/javase/6/docs/api/");
@@ -82,7 +92,7 @@ artifacts {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = "1.12";
+    gradleVersion = "1.11";
     distributionUrl = "http://services.gradle.org/distributions/gradle-${gradleVersion}-all.zip";
 }
 
