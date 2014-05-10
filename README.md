@@ -8,6 +8,8 @@ Its goal is to include debugging tools:
   [procyon](https://bitbucket.org/mstrobel/procyon/);
 * performance testing using [caliper](https://code.google.com/p/caliper/).
 
+**Requires a JDK 1.7**: procyon doesn't run on Java 6.
+
 ## Note about the usage of caliper
 
 Unfortunately, for now, I have not found a way to do anything other than:
