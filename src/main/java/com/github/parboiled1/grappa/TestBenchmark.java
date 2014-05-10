@@ -11,7 +11,7 @@ import java.util.List;
 
 public final class TestBenchmark
 {
-    private static final int COUNT = 100_000;
+    private static final int COUNT = 1_000_000;
     private static final List<Integer> LIST = new ArrayList<>();
 
     static {
