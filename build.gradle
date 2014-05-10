@@ -54,6 +54,7 @@ dependencies {
         exclude(group: "org.ow2.asm", module: "asm-tree");
         exclude(group: "org.ow2.asm", module: "asm-util");
         exclude(group: "org.ow2.asm", module: "asm-xml");
+        exclude(group: "asm", module: "asm");
     };
     compile(group: "org.openjdk.jmh", name: "jmh-core", version: "0.6");
 }
