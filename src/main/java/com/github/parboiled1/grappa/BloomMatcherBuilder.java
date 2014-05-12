@@ -1,63 +1,71 @@
 package com.github.parboiled1.grappa;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
+import com.google.common.collect.SortedSetMultimap;
+import com.google.common.collect.TreeMultimap;
 import com.google.common.hash.BloomFilter;
 import com.google.common.hash.Funnels;
 import com.google.common.primitives.Ints;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.nio.CharBuffer;
 import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 public final class BloomMatcherBuilder
 {
-    private static final Comparator<String> STRINGLEN
-        = new Comparator<String>()
+    private static final Comparator<CharSequence> CHARSEQUENCE_REVERSE
+        = new Comparator<CharSequence>()
     {
         @Override
-        public int compare(final String o1, final String o2)
+        public int compare(final CharSequence o1, final CharSequence o2)
         {
-            // Java 6 does not have Integer.compare()
-            return Ints.compare(o1.length(), o2.length());
+            return CharBuffer.wrap(o2).compareTo(CharBuffer.wrap(o1));
         }
     };
 
-    private List<String> strings;
-    private final ListMultimap<String, String> stringMap
-        = ArrayListMultimap.create();
-    private BloomFilter<CharSequence> bloomFilter;
-
-    public BloomMatcherBuilder withStrings(@Nonnull final List<String> strings)
+    private static final Comparator<Integer> INTEGER_REVERSE
+        = new Comparator<Integer>()
     {
-        final SortedSet<String> set = new TreeSet<>();
-        set.addAll(strings);
-        this.strings = new ArrayList<>(set);
-        Collections.reverse(this.strings);
-        buildMultimap();
+        @Override
+        public int compare(final Integer o1, final Integer o2)
+        {
+            return Ints.compare(o2, o1);
+        }
+    };
+
+    private final SortedSetMultimap<Integer, CharSequence> stringMap
+        = TreeMultimap.create(INTEGER_REVERSE, CHARSEQUENCE_REVERSE);
+    private BloomFilter<CharSequence> bloomFilter;
+    private int length;
+
+    public BloomMatcherBuilder withStrings(@Nonnull final Set<String> strings)
+    {
+        bloomFilter = BloomFilter.create(Funnels.unencodedCharsFunnel(),
+            strings.size());
+
+        int maxLen = 0;
+        for (final String string: strings) {
+            maxLen = Math.max(maxLen, string.length());
+            stringMap.put(string.length(), string);
+            bloomFilter.put(string);
+        }
+        length = maxLen;
         return this;
     }
 
-    private void buildMultimap()
+    public BloomFilterStringMatcher build()
     {
-        final SortedSet<String> treeSet = new TreeSet<>(STRINGLEN);
-        treeSet.addAll(strings);
-        final int minlen = treeSet.iterator().next().length();
+        return new BloomFilterStringMatcher(bloomFilter, stringMap, length);
+    }
 
-        // Second pass, insert in multimap
-        for (final String s: strings)
-            stringMap.put(s.substring(0, minlen), s.substring(minlen));
+    public static void main(final String... args)
+    {
+        final CharBuffer buf1 = CharBuffer.wrap("foobar");
+        final CharBuffer buf2 = CharBuffer.wrap("foobar");
 
-        final Set<String> set = stringMap.keySet();
-        bloomFilter = BloomFilter.create(Funnels.unencodedCharsFunnel(),
-            set.size());
-
-        for (final String key: set)
-            bloomFilter.put(key);
+        System.out.println(buf1.equals(buf2));
+        System.out.println(buf1.equals(buf2));
+        buf1.limit(3);
+        System.out.println(buf1.equals(buf2));
     }
 }
