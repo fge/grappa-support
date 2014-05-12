@@ -23,21 +23,18 @@ public final class TrieNode
         return doSearch(CharBuffer.wrap(needle), fullWord ? 0 : -1, 0);
     }
 
-    private int doSearch(final CharBuffer buffer, int lastDepth,
-        final int depth)
+    private int doSearch(final CharBuffer buffer, final int matchedLength,
+        final int currentLength)
     {
-        if (fullWord)
-            lastDepth = depth;
+        final int nextLength = fullWord ? currentLength : matchedLength;
 
         if (!buffer.hasRemaining())
-            return lastDepth;
+            return nextLength;
 
-        final char c = buffer.get();
-        final int index = Arrays.binarySearch(nextChars, c);
+        final int index = Arrays.binarySearch(nextChars, buffer.get());
 
-        if (index < 0)
-            return lastDepth;
-
-        return nextNodes[index].doSearch(buffer, lastDepth, depth + 1);
+        return index < 0
+            ? nextLength
+            : nextNodes[index].doSearch(buffer, nextLength, currentLength + 1);
     }
 }
