@@ -2,7 +2,7 @@ package com.github.parboiled1.grappa.trie;
 
 public final class TryTrie
 {
-    private static final String[] KEYWORDS = {
+    private static final String[] KEYWORDS = { "foo", "foobar",
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
         "char", "class", "const", "continue", "default", "double", "do",
         "else", "enum", "extends", "finally", "final", "float", "for",
@@ -14,7 +14,7 @@ public final class TryTrie
     };
 
     private static final String[] INPUTS = {
-        "abstrac", "int", "asser", "while", "strictfp", "for", "if",
+        "abstrac", "int", "asser", "while", "strictfp", "for", "if", "foob",
         "package", "syncronized", "transient", "volatil", "double", "do",
         "inport", "else", "continua", "finall", "instanceof", "instanceof x"
     };

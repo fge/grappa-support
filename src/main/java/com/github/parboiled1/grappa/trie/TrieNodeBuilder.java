@@ -8,7 +8,7 @@ public final class TrieNodeBuilder
 {
     private boolean fullWord = false;
 
-    private Map<Character, TrieNodeBuilder> subnodes
+    private final Map<Character, TrieNodeBuilder> subnodes
         = new TreeMap<>();
 
     public TrieNodeBuilder addWord(final String word)
@@ -26,7 +26,6 @@ public final class TrieNodeBuilder
 
         // Otherwise we need to continue; in any event we don't have a full
         // match at this point
-        fullWord = false;
         final char c = buffer.get();
         TrieNodeBuilder builder = subnodes.get(c);
         if (builder == null) {
