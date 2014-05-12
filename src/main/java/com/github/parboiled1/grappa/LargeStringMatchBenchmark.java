@@ -75,7 +75,7 @@ public final class LargeStringMatchBenchmark
             ? TRIE : FIRST_OF_STRINGS;
         boolean ret = true;
         final MatcherContext<Object> context = new MatcherContextBuilder()
-            .withInput(input).withMatcher(TRIE).build();
+            .withInput(input).withMatcher(matcher).build();
         for (int i = 0; i < rep; i++) {
             ret = matcher.match(context);
             context.setCurrentIndex(0);
@@ -83,32 +83,6 @@ public final class LargeStringMatchBenchmark
         return ret;
     }
 
-//    @Benchmark
-//    public boolean usingFirstOfStrings(final int rep)
-//    {
-//        boolean ret = true;
-//        final MatcherContext<Object> context = new MatcherContextBuilder()
-//            .withInput(input).withMatcher(FIRST_OF_STRINGS).build();
-//        for (int i = 0; i < rep; i++) {
-//            ret = FIRST_OF_STRINGS.match(context);
-//            context.setCurrentIndex(0);
-//        }
-//        return ret;
-//    }
-//
-//    @Benchmark
-//    public boolean usingBloom(final int rep)
-//    {
-//        boolean ret = true;
-//        final MatcherContext<Object> context = new MatcherContextBuilder()
-//            .withInput(input).withMatcher(bloom).build();
-//        for (int i = 0; i < rep; i++) {
-//            ret = bloom.match(context);
-//            context.setCurrentIndex(0);
-//        }
-//        return ret;
-//    }
-//
     public static void main(final String... args)
     {
         CaliperMain.main(LargeStringMatchBenchmark.class,

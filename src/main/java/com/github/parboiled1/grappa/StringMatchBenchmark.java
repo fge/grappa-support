@@ -60,7 +60,7 @@ public final class StringMatchBenchmark
             ? TRIE : FIRST_OF_STRINGS;
         boolean ret = true;
         final MatcherContext<Object> context = new MatcherContextBuilder()
-            .withInput(input).withMatcher(TRIE).build();
+            .withInput(input).withMatcher(matcher).build();
         for (int i = 0; i < rep; i++) {
             ret = matcher.match(context);
             context.setCurrentIndex(0);
