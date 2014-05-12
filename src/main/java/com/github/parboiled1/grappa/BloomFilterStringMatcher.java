@@ -72,14 +72,17 @@ public final class BloomFilterStringMatcher
         final String s
             = context.getInputBuffer().extract(index, index + length);
         final CharBuffer buffer = CharBuffer.wrap(s);
+        final int buflen = buffer.length();
 
         for (final int testedLength: stringMap.keySet()) {
+            if (testedLength > buflen)
+                continue;
             buffer.limit(testedLength);
             if (!bloomFilter.mightContain(buffer))
                 continue;
             if (!stringMap.get(testedLength).contains(buffer))
                 continue;
-            context.setCurrentIndex(index + testedLength);
+            context.advanceIndex(testedLength);
             context.createNode();
             return true;
         }

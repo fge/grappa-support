@@ -19,7 +19,7 @@ public final class MatcherContextBuilder
     private static final List<ParseError> ERRORS = new ArrayList<>();
 
     private InputBuffer buffer = null;
-    private boolean fastStringMatching = false;
+    private boolean fastStringMatching = true;
     private Matcher matcher = null;
 
     public MatcherContextBuilder withInput(@Nonnull final String input)
