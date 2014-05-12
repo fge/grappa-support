@@ -12,10 +12,17 @@ Its goal is to include debugging tools:
 
 ## Note about the usage of caliper
 
-Unfortunately, for now, I have not found a way to do anything other than:
+Unfortunately, for now, you have to do as follows:
 
-* clone, compile and provide it in this package;
+* clone caliper, install it into your local Maven repository;
 * use [the webapp](https://microbenchmarks.appspot.com) to publish results.
 
-The Caliper run API is unfortunately very poorly documented.
+To clone and install caliper, you need the JDK (of course) and a maven
+installation (unfortunately). Then (assuming a Unix system):
+
+```
+git clone https://code.google.com/p/caliper/
+cd caliper/caliper
+mvn install
+```
 
