@@ -8,11 +8,9 @@ import com.google.caliper.Param;
 import com.google.caliper.runner.CaliperMain;
 import com.google.common.collect.ImmutableSet;
 import org.parboiled.MatcherContext;
-import org.parboiled.Rule;
-import org.parboiled.matchers.FirstOfStringsMatcher;
 import org.parboiled.matchers.Matcher;
 
-public final class StringMatchBenchmark
+public final class BloomFilterBenchmark
 {
     /*
      * From http://en.wikipedia.org/wiki/List_of_Java_keywords
@@ -37,37 +35,22 @@ public final class StringMatchBenchmark
         "inport", "else", "continua", "finall", "instanceof"
     }) String input;
 
-    private Matcher firstOfStrings;
-    private Matcher bloom;
+    @Param({ "0.03", "0.05", "0.1", "0.125", "0.2", "0.25" }) double fpp;
 
     @BeforeExperiment
     public void initMatchers()
     {
-        firstOfStrings = new FirstOfStringsMatcher(new Rule[0],
-            toCharArrays(KEYWORDS));
-        bloom = new BloomMatcherBuilder()
-            .withStrings(ImmutableSet.copyOf(KEYWORDS)).build();
-    }
-
-    @Benchmark
-    public boolean usingFirstOfStrings(final int rep)
-    {
-        boolean ret = true;
-        final MatcherContext<Object> context = new MatcherContextBuilder()
-            .withInput(input).withMatcher(firstOfStrings).build();
-        for (int i = 0; i < rep; i++) {
-            ret = firstOfStrings.match(context);
-            context.setCurrentIndex(0);
-        }
-        return ret;
     }
 
     @Benchmark
     public boolean usingBloom(final int rep)
     {
-        boolean ret = true;
+        final Matcher bloom = new BloomMatcherBuilder().withFpp(fpp)
+            .withStrings(ImmutableSet.copyOf(KEYWORDS)).build();
         final MatcherContext<Object> context = new MatcherContextBuilder()
             .withInput(input).withMatcher(bloom).build();
+
+        boolean ret = true;
         for (int i = 0; i < rep; i++) {
             ret = bloom.match(context);
             context.setCurrentIndex(0);
@@ -77,7 +60,8 @@ public final class StringMatchBenchmark
 
     public static void main(final String... args)
     {
-        CaliperMain.main(StringMatchBenchmark.class, args);
+        CaliperMain.main(BloomFilterBenchmark.class,
+            new String[] { "-i", "runtime" });
     }
 
     private static char[][] toCharArrays(final String[] strings)

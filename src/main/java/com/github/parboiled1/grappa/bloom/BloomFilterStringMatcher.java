@@ -1,4 +1,4 @@
-package com.github.parboiled1.grappa;
+package com.github.parboiled1.grappa.bloom;
 
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.SetMultimap;
@@ -9,6 +9,9 @@ import org.parboiled.matchervisitors.MatcherVisitor;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.nio.CharBuffer;
+import java.util.Arrays;
+
+import static com.google.common.base.Equivalence.Wrapper;
 
 /**
  * A multi-string matcher based on a {@link BloomFilter}
@@ -28,12 +31,12 @@ import java.nio.CharBuffer;
 public final class BloomFilterStringMatcher
     extends AbstractMatcher
 {
+    private final BloomFilter<char[]> bloomFilter;
+    private final SetMultimap<Integer, Wrapper<char[]>> stringMap;
     private final int length;
-    private final SetMultimap<Integer, CharSequence> stringMap;
-    private final BloomFilter<CharSequence> bloomFilter;
 
-    public BloomFilterStringMatcher(final BloomFilter<CharSequence> bloomFilter,
-        final SetMultimap<Integer, CharSequence> stringMap, final int length)
+    public BloomFilterStringMatcher(final BloomFilter<char[]> bloomFilter,
+        final SetMultimap<Integer, Wrapper<char[]>> stringMap, final int length)
     {
         super("Bloom: " + stringMap.size() + " strings");
         this.length = length;
@@ -71,16 +74,19 @@ public final class BloomFilterStringMatcher
         final int index = context.getCurrentIndex();
         final String s
             = context.getInputBuffer().extract(index, index + length);
-        final CharBuffer buffer = CharBuffer.wrap(s);
-        final int buflen = buffer.length();
+        final char[] chars = s.toCharArray();
+        final int len = chars.length;
+
+        char[] tested;
 
         for (final int testedLength: stringMap.keySet()) {
-            if (testedLength > buflen)
+            if (testedLength > len)
                 continue;
-            buffer.limit(testedLength);
-            if (!bloomFilter.mightContain(buffer))
+            tested = Arrays.copyOf(chars, testedLength);
+            if (!bloomFilter.mightContain(tested))
                 continue;
-            if (!stringMap.get(testedLength).contains(buffer))
+            if (!stringMap.get(testedLength)
+                .contains(CharArrayEquivalence.INSTANCE.wrap(tested)))
                 continue;
             context.advanceIndex(testedLength);
             context.createNode();

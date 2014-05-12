@@ -12,29 +12,45 @@ import org.parboiled.Rule;
 import org.parboiled.matchers.FirstOfStringsMatcher;
 import org.parboiled.matchers.Matcher;
 
-public final class StringMatchBenchmark
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public final class LargeStringMatchBenchmark
 {
-    /*
-     * From http://en.wikipedia.org/wiki/List_of_Java_keywords
-     *
-     * Note that longest keywords come first for FirstOfStringsMatcher which
-     * does not like for instance "do" before "double".
-     */
-    private static final String[] KEYWORDS = {
-        "abstract", "assert", "boolean", "break", "byte", "case", "catch",
-        "char", "class", "const", "continue", "default", "double", "do",
-        "else", "enum", "extends", "finally", "final", "float", "for",
-        "goto", "if", "implements", "import", "instanceof", "interface", "int",
-        "long", "native", "new", "package", "private", "protected", "public",
-        "return", "short", "static", "strictfp", "super", "switch",
-        "synchronized", "this", "throws", "throw", "transient", "try", "void",
-        "volatile", "while", "false", "null", "true"
-    };
+    private static final String[] WORDS_ARRAY;
+    private static final List<String> WORDS_LIST;
+
+    static {
+        try {
+            final Path path = Paths.get("/usr/share/dict/words");
+            WORDS_LIST = Files.readAllLines(path,
+                StandardCharsets.UTF_8);
+            Collections.sort(WORDS_LIST, new Comparator<String>()
+            {
+                @Override
+                public int compare(final String o1, final String o2)
+                {
+                    return o2.compareTo(o1);
+                }
+            });
+            WORDS_ARRAY = WORDS_LIST.toArray(new String[WORDS_LIST.size()]);
+        } catch (IOException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     @Param({
-        "abstrac", "int", "asser", "while", "strictfp", "for", "if",
-        "package", "syncronized", "transient", "volatil", "double", "do",
-        "inport", "else", "continua", "finall", "instanceof"
+        "fubar", "innuendo", "cétacé", "assimilate", "bergynion",
+        "castration", "Drizzt Do'Urden", "holiday", "abstractions",
+        "glaring omission", "Oppenheimer", "cleaver", "desiderata",
+        "endurance", "Palermo", "procrastination", "engulfed", "grappa",
+        "forelorn", "dimwit", "nonproblem", "overflow", "algorithm"
     }) String input;
 
     private Matcher firstOfStrings;
@@ -44,9 +60,9 @@ public final class StringMatchBenchmark
     public void initMatchers()
     {
         firstOfStrings = new FirstOfStringsMatcher(new Rule[0],
-            toCharArrays(KEYWORDS));
+            toCharArrays(WORDS_ARRAY));
         bloom = new BloomMatcherBuilder()
-            .withStrings(ImmutableSet.copyOf(KEYWORDS)).build();
+            .withStrings(ImmutableSet.copyOf(WORDS_LIST)).build();
     }
 
     @Benchmark
@@ -77,7 +93,8 @@ public final class StringMatchBenchmark
 
     public static void main(final String... args)
     {
-        CaliperMain.main(StringMatchBenchmark.class, args);
+        CaliperMain.main(LargeStringMatchBenchmark.class,
+            new String[] { "-i", "runtime" });
     }
 
     private static char[][] toCharArrays(final String[] strings)
