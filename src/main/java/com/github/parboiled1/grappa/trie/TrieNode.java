@@ -20,20 +20,24 @@ public final class TrieNode
 
     public int search(final String needle)
     {
-        return doSearch(CharBuffer.wrap(needle), 0);
+        return doSearch(CharBuffer.wrap(needle), fullWord ? 0 : -1, 0);
     }
 
-    private int doSearch(final CharBuffer buffer, final int depth)
+    private int doSearch(final CharBuffer buffer, int lastDepth,
+        final int depth)
     {
+        if (fullWord)
+            lastDepth = depth;
+
         if (!buffer.hasRemaining())
-            return fullWord ? depth : -1;
+            return lastDepth;
 
         final char c = buffer.get();
         final int index = Arrays.binarySearch(nextChars, c);
 
         if (index < 0)
-            return fullWord ? depth : -1;
+            return lastDepth;
 
-        return nextNodes[index].doSearch(buffer, depth + 1);
+        return nextNodes[index].doSearch(buffer, lastDepth, depth + 1);
     }
 }

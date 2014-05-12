@@ -16,7 +16,7 @@ public final class TryTrie
     private static final String[] INPUTS = {
         "abstrac", "int", "asser", "while", "strictfp", "for", "if",
         "package", "syncronized", "transient", "volatil", "double", "do",
-        "inport", "else", "continua", "finall", "instanceof"
+        "inport", "else", "continua", "finall", "instanceof", "instanceof x"
     };
 
     public static void main(final String... words)
