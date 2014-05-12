@@ -1,12 +1,12 @@
 package com.github.parboiled1.grappa;
 
-import com.github.parboiled1.grappa.bloom.BloomMatcherBuilder;
+import com.github.parboiled1.grappa.trie.Trie;
+import com.github.parboiled1.grappa.trie.TrieStringMatcher;
 import com.github.parboiled1.grappa.util.MatcherContextBuilder;
-import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
 import com.google.caliper.runner.CaliperMain;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.base.Stopwatch;
 import org.parboiled.MatcherContext;
 import org.parboiled.Rule;
 import org.parboiled.matchers.FirstOfStringsMatcher;
@@ -25,6 +25,8 @@ public final class LargeStringMatchBenchmark
 {
     private static final String[] WORDS_ARRAY;
     private static final List<String> WORDS_LIST;
+    private static final Matcher FIRST_OF_STRINGS;
+    private static final Matcher TRIE;
 
     static {
         try {
@@ -40,6 +42,15 @@ public final class LargeStringMatchBenchmark
                 }
             });
             WORDS_ARRAY = WORDS_LIST.toArray(new String[WORDS_LIST.size()]);
+            final Stopwatch stopwatch = Stopwatch.createStarted();
+            FIRST_OF_STRINGS = new FirstOfStringsMatcher(new Rule[0],
+                toCharArrays(WORDS_ARRAY));
+            final Trie.Builder builder = Trie.newBuilder();
+            for (final String word: WORDS_ARRAY)
+                builder.addWord(word);
+            TRIE = new TrieStringMatcher(builder.build());
+            stopwatch.stop();
+            System.out.println("DONE generating matchers; time: " + stopwatch);
         } catch (IOException e) {
             throw new ExceptionInInitializerError(e);
         }
@@ -51,46 +62,53 @@ public final class LargeStringMatchBenchmark
         "glaring omission", "Oppenheimer", "cleaver", "desiderata",
         "endurance", "Palermo", "procrastination", "engulfed", "grappa",
         "forelorn", "dimwit", "nonproblem", "overflow", "algorithm"
-    }) String input;
+    })
+    String input;
 
-    private Matcher firstOfStrings;
-    private Matcher bloom;
-
-    @BeforeExperiment
-    public void initMatchers()
-    {
-        firstOfStrings = new FirstOfStringsMatcher(new Rule[0],
-            toCharArrays(WORDS_ARRAY));
-        bloom = new BloomMatcherBuilder()
-            .withStrings(ImmutableSet.copyOf(WORDS_LIST)).build();
-    }
+    @Param({"FIRST_OF_STRINGS", "TRIE"})
+    String matcherType;
 
     @Benchmark
-    public boolean usingFirstOfStrings(final int rep)
+    public boolean stringMatch(final int rep)
     {
+        final Matcher matcher = "TRIE".equals(matcherType)
+            ? TRIE : FIRST_OF_STRINGS;
         boolean ret = true;
         final MatcherContext<Object> context = new MatcherContextBuilder()
-            .withInput(input).withMatcher(firstOfStrings).build();
+            .withInput(input).withMatcher(TRIE).build();
         for (int i = 0; i < rep; i++) {
-            ret = firstOfStrings.match(context);
+            ret = matcher.match(context);
             context.setCurrentIndex(0);
         }
         return ret;
     }
 
-    @Benchmark
-    public boolean usingBloom(final int rep)
-    {
-        boolean ret = true;
-        final MatcherContext<Object> context = new MatcherContextBuilder()
-            .withInput(input).withMatcher(bloom).build();
-        for (int i = 0; i < rep; i++) {
-            ret = bloom.match(context);
-            context.setCurrentIndex(0);
-        }
-        return ret;
-    }
-
+//    @Benchmark
+//    public boolean usingFirstOfStrings(final int rep)
+//    {
+//        boolean ret = true;
+//        final MatcherContext<Object> context = new MatcherContextBuilder()
+//            .withInput(input).withMatcher(FIRST_OF_STRINGS).build();
+//        for (int i = 0; i < rep; i++) {
+//            ret = FIRST_OF_STRINGS.match(context);
+//            context.setCurrentIndex(0);
+//        }
+//        return ret;
+//    }
+//
+//    @Benchmark
+//    public boolean usingBloom(final int rep)
+//    {
+//        boolean ret = true;
+//        final MatcherContext<Object> context = new MatcherContextBuilder()
+//            .withInput(input).withMatcher(bloom).build();
+//        for (int i = 0; i < rep; i++) {
+//            ret = bloom.match(context);
+//            context.setCurrentIndex(0);
+//        }
+//        return ret;
+//    }
+//
     public static void main(final String... args)
     {
         CaliperMain.main(LargeStringMatchBenchmark.class,
