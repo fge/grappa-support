@@ -1,12 +1,12 @@
 package com.github.parboiled1.grappa;
 
-import com.github.parboiled1.grappa.bloom.BloomMatcherBuilder;
+import com.github.parboiled1.grappa.trie.Trie;
+import com.github.parboiled1.grappa.trie.TrieStringMatcher;
 import com.github.parboiled1.grappa.util.MatcherContextBuilder;
 import com.google.caliper.BeforeExperiment;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
 import com.google.caliper.runner.CaliperMain;
-import com.google.common.collect.ImmutableSet;
 import org.parboiled.MatcherContext;
 import org.parboiled.Rule;
 import org.parboiled.matchers.FirstOfStringsMatcher;
@@ -35,41 +35,62 @@ public final class StringMatchBenchmark
         "abstrac", "int", "asser", "while", "strictfp", "for", "if",
         "package", "syncronized", "transient", "volatil", "double", "do",
         "inport", "else", "continua", "finall", "instanceof"
-    }) String input;
+    })
+    String input;
+
+    @Param({"firstOfStrings", "trie"})
+    String matcherType;
 
     private Matcher firstOfStrings;
-    private Matcher bloom;
+    private Matcher trie;
 
     @BeforeExperiment
     public void initMatchers()
     {
         firstOfStrings = new FirstOfStringsMatcher(new Rule[0],
             toCharArrays(KEYWORDS));
-        bloom = new BloomMatcherBuilder()
-            .withStrings(ImmutableSet.copyOf(KEYWORDS)).build();
+        final Trie.Builder builder = Trie.newBuilder();
+        for (final String keyword: KEYWORDS)
+            builder.addWord(keyword);
+        trie = new TrieStringMatcher(builder.build());
     }
 
-    @Benchmark
-    public boolean usingFirstOfStrings(final int rep)
-    {
-        boolean ret = true;
-        final MatcherContext<Object> context = new MatcherContextBuilder()
-            .withInput(input).withMatcher(firstOfStrings).build();
-        for (int i = 0; i < rep; i++) {
-            ret = firstOfStrings.match(context);
-            context.setCurrentIndex(0);
-        }
-        return ret;
-    }
+//    @Benchmark
+//    public boolean usingFirstOfStrings(final int rep)
+//    {
+//        boolean ret = true;
+//        final MatcherContext<Object> context = new MatcherContextBuilder()
+//            .withInput(input).withMatcher(firstOfStrings).build();
+//        for (int i = 0; i < rep; i++) {
+//            ret = firstOfStrings.match(context);
+//            context.setCurrentIndex(0);
+//        }
+//        return ret;
+//    }
+//
+//    @Benchmark
+//    public boolean usingTrie(final int rep)
+//    {
+//        boolean ret = true;
+//        final MatcherContext<Object> context = new MatcherContextBuilder()
+//            .withInput(input).withMatcher(trie).build();
+//        for (int i = 0; i < rep; i++) {
+//            ret = trie.match(context);
+//            context.setCurrentIndex(0);
+//        }
+//        return ret;
+//    }
 
     @Benchmark
-    public boolean usingBloom(final int rep)
+    public boolean stringMatch(final int rep)
     {
+        final Matcher matcher = "trie".equals(matcherType)
+            ? trie : firstOfStrings;
         boolean ret = true;
         final MatcherContext<Object> context = new MatcherContextBuilder()
-            .withInput(input).withMatcher(bloom).build();
+            .withInput(input).withMatcher(trie).build();
         for (int i = 0; i < rep; i++) {
-            ret = bloom.match(context);
+            ret = matcher.match(context);
             context.setCurrentIndex(0);
         }
         return ret;
@@ -77,7 +98,8 @@ public final class StringMatchBenchmark
 
     public static void main(final String... args)
     {
-        CaliperMain.main(StringMatchBenchmark.class, args);
+        CaliperMain.main(StringMatchBenchmark.class,
+            new String[] { "-i", "runtime" });
     }
 
     private static char[][] toCharArrays(final String[] strings)
