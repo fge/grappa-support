@@ -1,28 +1,41 @@
 package com.github.parboiled1.grappa;
 
-import com.github.parboiled1.grappa.trie.Trie;
-import com.github.parboiled1.grappa.trie.TrieStringMatcher;
+import com.github.parboiled1.grappa.matchers.trie.Trie;
+import com.github.parboiled1.grappa.matchers.trie.TrieBuilder;
+import com.github.parboiled1.grappa.matchers.trie.TrieMatcher;
 import com.github.parboiled1.grappa.util.MatcherContextBuilder;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
 import com.google.caliper.runner.CaliperMain;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import org.parboiled.MatcherContext;
 import org.parboiled.Rule;
 import org.parboiled.matchers.FirstOfStringsMatcher;
 import org.parboiled.matchers.Matcher;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public final class LargeStringMatchBenchmark
 {
+    private static final Comparator<String> CMP = new Comparator<String>()
+    {
+        @Override
+        public int compare(final String o1, final String o2)
+        {
+            return o2.compareTo(o1);
+        }
+    };
+
     private static final String[] WORDS_ARRAY;
     private static final List<String> WORDS_LIST;
     private static final Matcher FIRST_OF_STRINGS;
@@ -31,24 +44,26 @@ public final class LargeStringMatchBenchmark
     static {
         try {
             final Path path = Paths.get("/usr/share/dict/words");
-            WORDS_LIST = Files.readAllLines(path,
-                StandardCharsets.UTF_8);
-            Collections.sort(WORDS_LIST, new Comparator<String>()
-            {
-                @Override
-                public int compare(final String o1, final String o2)
-                {
-                    return o2.compareTo(o1);
-                }
-            });
+            final Charset cs = StandardCharsets.UTF_8;
+            final Set<String> set = new TreeSet<>(CMP);
+
+            for (final String line: Files.readAllLines(path, cs))
+                if (line.length() >= 2)
+                    set.add(line);
+
+            WORDS_LIST = ImmutableList.copyOf(set);
             WORDS_ARRAY = WORDS_LIST.toArray(new String[WORDS_LIST.size()]);
+
             final Stopwatch stopwatch = Stopwatch.createStarted();
+
             FIRST_OF_STRINGS = new FirstOfStringsMatcher(new Rule[0],
                 toCharArrays(WORDS_ARRAY));
-            final Trie.Builder builder = Trie.newBuilder();
+            final TrieBuilder builder = Trie.newBuilder();
             for (final String word: WORDS_ARRAY)
-                builder.addWord(word);
-            TRIE = new TrieStringMatcher(builder.build());
+                if (word.length() >= 2)
+                    builder.addWord(word);
+            TRIE = new TrieMatcher(builder.build());
+
             stopwatch.stop();
             System.out.println("DONE generating matchers; time: " + stopwatch);
         } catch (IOException e) {
@@ -86,7 +101,7 @@ public final class LargeStringMatchBenchmark
     public static void main(final String... args)
     {
         CaliperMain.main(LargeStringMatchBenchmark.class,
-            new String[] { "-i", "runtime" });
+            new String[] {});
     }
 
     private static char[][] toCharArrays(final String[] strings)

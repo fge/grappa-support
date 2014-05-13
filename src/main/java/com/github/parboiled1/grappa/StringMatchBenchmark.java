@@ -1,7 +1,8 @@
 package com.github.parboiled1.grappa;
 
-import com.github.parboiled1.grappa.trie.Trie;
-import com.github.parboiled1.grappa.trie.TrieStringMatcher;
+import com.github.parboiled1.grappa.matchers.trie.Trie;
+import com.github.parboiled1.grappa.matchers.trie.TrieBuilder;
+import com.github.parboiled1.grappa.matchers.trie.TrieMatcher;
 import com.github.parboiled1.grappa.util.MatcherContextBuilder;
 import com.google.caliper.Benchmark;
 import com.google.caliper.Param;
@@ -37,10 +38,10 @@ public final class StringMatchBenchmark
     static {
         FIRST_OF_STRINGS = new FirstOfStringsMatcher(new Rule[0],
             toCharArrays(KEYWORDS));
-        final Trie.Builder builder = Trie.newBuilder();
+        final TrieBuilder builder = Trie.newBuilder();
         for (final String keyword: KEYWORDS)
             builder.addWord(keyword);
-        TRIE = new TrieStringMatcher(builder.build());
+        TRIE = new TrieMatcher(builder.build());
     }
 
     @Param({
@@ -71,7 +72,7 @@ public final class StringMatchBenchmark
     public static void main(final String... args)
     {
         CaliperMain.main(StringMatchBenchmark.class,
-            new String[] { "-i", "runtime" });
+            new String[] {});
     }
 
     private static char[][] toCharArrays(final String[] strings)
