@@ -40,7 +40,7 @@ dependencies {
     provided(group: "com.google.code.findbugs", name: "jsr305",
         version: "2.0.1");
     compile(group: "com.github.parboiled1", name: "grappa",
-        version: "1.0.0-beta.6");
+        version: "1.0.0-beta.7");
     compile(group: "org.bitbucket.mstrobel", name: "procyon-core",
         version: "0.5.25");
     compile(group: "org.bitbucket.mstrobel", name: "procyon-compilertools",
