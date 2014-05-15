@@ -19,7 +19,7 @@ public class GuavaEventBusParser
 
     public Rule rule()
     {
-        return sequence(oneOrMore('a'), event());
+        return sequence("aaaaaaaaa", event());
     }
 
     boolean event()

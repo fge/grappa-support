@@ -6,7 +6,7 @@ import org.parboiled.Parboiled;
 import org.parboiled.parserunners.BasicParseRunner;
 import org.parboiled.parserunners.ParseRunner;
 
-public final class MBassadorMatchListener
+public final class MbassadorMatchListener
 {
     private String match;
 
@@ -23,7 +23,7 @@ public final class MBassadorMatchListener
 
     public static void main(final String... args)
     {
-        final MBassadorMatchListener listener = new MBassadorMatchListener();
+        final MbassadorMatchListener listener = new MbassadorMatchListener();
 
         final MbassadorEventBusParser parser
             = Parboiled.createParser(MbassadorEventBusParser.class, listener);

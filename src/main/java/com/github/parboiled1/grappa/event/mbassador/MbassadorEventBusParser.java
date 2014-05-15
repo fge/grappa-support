@@ -15,14 +15,14 @@ public class MbassadorEventBusParser
         = new MBassador<>(BusConfiguration.Default());
 
     public MbassadorEventBusParser(
-        @Nonnull final MBassadorMatchListener listener)
+        @Nonnull final MbassadorMatchListener listener)
     {
         bus.subscribe(listener);
     }
 
     public Rule rule()
     {
-        return sequence(oneOrMore('a'), event());
+        return sequence("aaaaaaaaa", event());
     }
 
     boolean event()
