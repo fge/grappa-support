@@ -1,5 +1,6 @@
 package com.github.parboiled1.grappa.event.guava;
 
+import com.github.parboiled1.grappa.event.MatchEvent;
 import com.google.common.eventbus.EventBus;
 import org.parboiled.BaseParser;
 import org.parboiled.Rule;
@@ -9,14 +10,14 @@ import javax.annotation.Nonnull;
 public class GuavaEventBusParser
     extends BaseParser<Object>
 {
-    private final EventBus eventBus = new EventBus();
+    private final EventBus bus = new EventBus();
 
-    public GuavaEventBusParser(@Nonnull final MatchCollector collector)
+    public GuavaEventBusParser(@Nonnull final GuavaMatchListener collector)
     {
-        eventBus.register(collector);
+        bus.register(collector);
     }
 
-    Rule rule()
+    public Rule rule()
     {
         return sequence(oneOrMore('a'), event());
     }
@@ -24,7 +25,7 @@ public class GuavaEventBusParser
     boolean event()
     {
         final MatchEvent event = new MatchEvent(getContext().getMatch());
-        eventBus.post(event);
+        bus.post(event);
         return true;
     }
 }

@@ -1,11 +1,12 @@
 package com.github.parboiled1.grappa.event.guava;
 
+import com.github.parboiled1.grappa.event.MatchEvent;
 import com.google.common.eventbus.Subscribe;
 import org.parboiled.Parboiled;
 import org.parboiled.parserunners.BasicParseRunner;
 import org.parboiled.parserunners.ParseRunner;
 
-public final class MatchCollector
+public final class GuavaMatchListener
 {
     private String match;
 
@@ -22,7 +23,7 @@ public final class MatchCollector
 
     public static void main(final String... args)
     {
-        final MatchCollector collector = new MatchCollector();
+        final GuavaMatchListener collector = new GuavaMatchListener();
 
         final GuavaEventBusParser parser
             = Parboiled.createParser(GuavaEventBusParser.class, collector);

@@ -37,14 +37,19 @@ repositories {
 }
 
 dependencies {
+    // Base dependencies
     provided(group: "com.google.code.findbugs", name: "jsr305",
         version: "2.0.1");
     compile(group: "com.github.parboiled1", name: "grappa",
         version: "1.0.0-beta.7");
+    // Bytecode helpers
     compile(group: "org.bitbucket.mstrobel", name: "procyon-core",
         version: "0.5.25");
     compile(group: "org.bitbucket.mstrobel", name: "procyon-compilertools",
         version: "0.5.25");
+    // Event bus libraries
+    compile(group: "net.engio", name: "mbassador", version: "1.1.10");
+    // Micro benchmarks (yes, jersey is necessary :/)
     compile(group: "com.google.caliper", name: "caliper",
         version: "1.0-beta-SNAPSHOT") {
         exclude(group: "com.google.guava", module: "guava");

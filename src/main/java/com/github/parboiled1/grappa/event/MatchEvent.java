@@ -1,4 +1,4 @@
-package com.github.parboiled1.grappa.event.guava;
+package com.github.parboiled1.grappa.event;
 
 public final class MatchEvent
 {
